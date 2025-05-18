@@ -1,0 +1,33 @@
+### 1. Adicionar item ao carrinho
+POST http://localhost:5001/api/cart/11111111-1111-1111-1111-111111111111/items
+Content-Type: application/json
+
+{
+  "productId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  "quantity": 2,
+  "unitPrice": 59.90
+}
+
+###
+
+### 2. Adicionar outro item ao carrinho
+POST http://localhost:5001/api/cart/11111111-1111-1111-1111-111111111111/items
+Content-Type: application/json
+
+{
+  "productId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "quantity": 1,
+  "unitPrice": 129.90
+}
+
+###
+
+### 3. Ver carrinho
+GET http://localhost:5001/api/cart/11111111-1111-1111-1111-111111111111
+
+###
+
+### 4. Realizar checkout
+POST http://localhost:5001/api/cart/11111111-1111-1111-1111-111111111111/checkout
+
+###

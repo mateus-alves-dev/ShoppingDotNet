@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+    postgres:
+        image: postgres:alpine
+        container_name: postgres
+        restart: always
+        environment:
+            POSTGRES_USER: dev
+            POSTGRES_PASSWORD: devpass
+            POSTGRES_DB: cartdb
+        ports:
+            - "5432:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+
+    redis:
+        image: redis:alpine
+        container_name: redis
+        ports:
+            - "6379:6379"
+
+    rabbitmq:
+        image: rabbitmq:management-alpine
+        container_name: rabbitmq
+        ports:
+            - "5672:5672" # conexão de apps
+            - "15672:15672" # painel web
+        environment:
+            RABBITMQ_DEFAULT_USER: guest
+            RABBITMQ_DEFAULT_PASS: guest
+
+    cart-api:
+        build:
+            context: .
+            dockerfile: CartService/Cart.API/Dockerfile
+        depends_on:
+            - postgres
+            - redis
+            - rabbitmq
+        ports:
+            - "5001:80"
+        environment:
+            ASPNETCORE_ENVIRONMENT: Development
+            ConnectionStrings__Postgres: "Host=postgres;Port=5432;Username=dev;Password=devpass;Database=cartdb"
+            ConnectionStrings__Redis: "redis:6379"
+            RabbitMQ__Host: "rabbitmq"
+            RabbitMQ__User: "guest"
+            RabbitMQ__Pass: "guest"
+
+    order-api:
+        build:
+            context: .
+            dockerfile: OrderService/Order.API/Dockerfile
+        depends_on:
+            - postgres
+            - rabbitmq
+        ports:
+            - "5002:80"
+        environment:
+            ASPNETCORE_ENVIRONMENT: Development
+            ConnectionStrings__Postgres: "Host=postgres;Port=5432;Username=dev;Password=devpass;Database=orderdb"
+            RabbitMQ__Host: "rabbitmq"
+            RabbitMQ__User: "guest"
+            RabbitMQ__Pass: "guest"
+
+volumes:
+    pgdata:
