@@ -39,7 +39,7 @@ services:
             - redis
             - rabbitmq
         ports:
-            - "5001:80"
+            - "5001:8080"
         environment:
             ASPNETCORE_ENVIRONMENT: Development
             ConnectionStrings__Postgres: "Host=postgres;Port=5432;Username=dev;Password=devpass;Database=cartdb"
@@ -56,13 +56,25 @@ services:
             - postgres
             - rabbitmq
         ports:
-            - "5002:80"
+            - "5002:8080"
         environment:
             ASPNETCORE_ENVIRONMENT: Development
             ConnectionStrings__Postgres: "Host=postgres;Port=5432;Username=dev;Password=devpass;Database=orderdb"
             RabbitMQ__Host: "rabbitmq"
             RabbitMQ__User: "guest"
             RabbitMQ__Pass: "guest"
+    product-api:
+        build:
+            context: .
+            dockerfile: ProductService/Product.API/Dockerfile
+        depends_on:
+            - postgres
+            - rabbitmq
+        ports:
+            - "5003:8080"
+        environment:
+            ASPNETCORE_ENVIRONMENT: Development
+            ConnectionStrings__Postgres: "Host=postgres;Port=5432;Username=dev;Password=devpass;Database=productdb"
 
 volumes:
     pgdata:
