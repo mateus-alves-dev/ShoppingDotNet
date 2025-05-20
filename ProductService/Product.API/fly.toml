@@ -1,0 +1,35 @@
+# fly.toml file generated for your-product-service-app-name
+#
+# Replace 'your-product-service-app-name' with your actual app name on Fly.io.
+app = "your-product-service-app-name"
+primary_region = "iad" # Example region, user can change as needed
+
+[build]
+  dockerfile = "Dockerfile" # Assumes Dockerfile is in the same directory as fly.toml
+  # You can add build arguments here if your Dockerfile needs them
+  # [build.args]
+  #   MY_ARG = "value"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 8080 # ASP.NET Core default HTTP port in containers
+  processes = ["app"] # Matches the default process group
+
+  [[services.ports]]
+    port = 80 # External HTTP port
+  [[services.ports]]
+    port = 443 # External HTTPS port
+    handlers = ["tls", "http"]
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.http_checks]]
+    interval = "10s"
+    timeout = "2s"
+    method = "GET"
+    path = "/healthz" # Assuming a standard health check endpoint, user might need to adjust
+    grace_period = "5s"
+    # To pass health checks an HTTP status code between 200 and 399 must be returned.

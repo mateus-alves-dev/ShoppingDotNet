@@ -1,0 +1,26 @@
+name: Deploy Product Service to Fly.io
+
+on:
+  push:
+    branches:
+      - main # Or your preferred deployment branch
+    paths: # Only run when ProductService or this workflow changes
+      - 'ProductService/**'
+      - '.github/workflows/fly_deploy_product_service.yml'
+
+jobs:
+  deploy:
+    name: Deploy Product Service
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl deploy --remote-only
+        working-directory: ./ProductService/Product.API # Ensures flyctl uses the correct fly.toml
