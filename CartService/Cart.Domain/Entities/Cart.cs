@@ -15,20 +15,29 @@ public class Cart
         CreatedAt = DateTime.UtcNow;
     }
 
-    public void AddItem(Guid productId, int quantity, decimal unitPrice)
+    public void AddItem(Guid productId, int quantity, decimal unitPrice, string productName, string productImageUrl)
     {
         var existingItem = Items.FirstOrDefault(i => i.ProductId == productId);
         if (existingItem != null)
         {
             existingItem.Quantity += quantity;
-            return;
+            // Update details in case they changed in ProductService
+            existingItem.UnitPrice = unitPrice; 
+            existingItem.ProductName = productName;
+            existingItem.ProductImageUrl = productImageUrl;
+            UpdatedAt = DateTime.UtcNow; // Ensure UpdatedAt is set
+            return; // Return after updating existing item
         }
         Items.Add(new CartItem
         {
+            Id = Guid.NewGuid(), // Set new Guid for the cart item
             ProductId = productId,
             Quantity = quantity,
-            UnitPrice = unitPrice
+            UnitPrice = unitPrice,
+            ProductName = productName,
+            ProductImageUrl = productImageUrl
         });
+        UpdatedAt = DateTime.UtcNow; // Ensure UpdatedAt is set
     }
 
     public void RemoveItem(Guid itemId)
