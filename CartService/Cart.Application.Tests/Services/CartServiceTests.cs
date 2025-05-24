@@ -7,13 +7,13 @@ using System;
 using System.Collections.Generic; // For KeyNotFoundException, List
 using System.Linq;
 using System.Threading.Tasks;
-using Xunit;
-using Moq;
-using Cart.Application.Services;
-using Cart.Application.Interfaces;
 using Cart.Application.DTOs;
+using Cart.Application.Interfaces;
+using Cart.Application.Services;
 using Cart.Domain.Entities; // For Domain.Entities.Cart and CartItem
 using Cart.Domain.Interfaces; // For ICartRepository
+using Moq;
+using Xunit;
 
 namespace Cart.Application.Tests.Services
 {
@@ -55,7 +55,7 @@ namespace Cart.Application.Tests.Services
             _mockProductServiceHttpClient.Verify(p => p.GetProductByIdAsync(productId), Times.Once);
             _mockCartRepository.Verify(r => r.GetByUserIdAsync(userId), Times.Once);
             _mockCartRepository.Verify(r => r.AddOrUpdateAsync(It.IsAny<Domain.Entities.Cart>()), Times.Once);
-            
+
             Assert.NotNull(capturedCart);
             Assert.Equal(userId, capturedCart.UserId);
             Assert.Single(capturedCart.Items);
@@ -134,12 +134,12 @@ namespace Cart.Application.Tests.Services
             var cartItemDto = new CartItemDto { ProductId = productId, Quantity = 1 };
 
             _mockProductServiceHttpClient.Setup(p => p.GetProductByIdAsync(productId)).ReturnsAsync((ProductDto)null);
-             _mockCartRepository.Setup(r => r.GetByUserIdAsync(userId)).ReturnsAsync((Domain.Entities.Cart)null); // Cart repo might be called before product check
+            _mockCartRepository.Setup(r => r.GetByUserIdAsync(userId)).ReturnsAsync((Domain.Entities.Cart)null); // Cart repo might be called before product check
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _cartService.AddItemAsync(userId, cartItemDto));
             Assert.Equal($"Product with ID {productId} not found.", exception.Message);
-            
+
             _mockProductServiceHttpClient.Verify(p => p.GetProductByIdAsync(productId), Times.Once);
             _mockCartRepository.Verify(r => r.AddOrUpdateAsync(It.IsAny<Domain.Entities.Cart>()), Times.Never);
         }
@@ -158,7 +158,7 @@ namespace Cart.Application.Tests.Services
             // Act & Assert
             var exception = await Assert.ThrowsAsync<ArgumentException>(() => _cartService.AddItemAsync(userId, cartItemDto));
             Assert.Equal(expectedMessage, exception.Message); // Check specific message if CartService throws it.
-            
+
             _mockProductServiceHttpClient.Verify(p => p.GetProductByIdAsync(It.IsAny<Guid>()), Times.Never);
             _mockCartRepository.Verify(r => r.AddOrUpdateAsync(It.IsAny<Domain.Entities.Cart>()), Times.Never);
         }
